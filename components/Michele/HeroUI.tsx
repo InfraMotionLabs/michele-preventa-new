@@ -29,7 +29,16 @@ export const HeroUI = ({
         cameraZoomed={cameraZoomed}
         setCameraZoomed={setCameraZoomed}
       /> */}
-      <div className="flex items-center justify-center gap-2 z-30 mx-auto absolute bottom-28 w-full">
+      <div className="flex flex-row py-6 bg-neutral-100 items-center gap-10 pr-8 rounded-l-3xl rounded-r-full bottom-10 shadow-lg shadow-black/40 max-w-lg mx-auto absolute pl-6 text-start">
+        <div>
+          <h2 className="text-lg font-bold mb-2">
+            I'm Michelle! Your Digital Security Assistant
+          </h2>
+          <p className="text-sm ">
+            Your all-seeing retail buddy. What's happening in the store? Just
+            ask!{' '}
+          </p>
+        </div>
         <AudioButton
           isRecording={isRecording}
           startRecording={startRecording}
@@ -39,11 +48,22 @@ export const HeroUI = ({
           isPlaying={isPlaying}
         />
       </div>
+      {/* <div className="flex items-center justify-center gap-2 z-30 mx-auto absolute bottom-28 w-full">
+        <AudioButton
+          isRecording={isRecording}
+          startRecording={startRecording}
+          stopRecording={stopRecording}
+          isGenerating={isGenerating}
+          stopAudioAndAnimation={stopAudioAndAnimation}
+          isPlaying={isPlaying}
+        />
+      </div> */}
 
       <div className="flex items-center justify-center gap-2 group z-30 mx-auto absolute bottom-0 w-full">
         <Link href="/dashboard/analytics">
-          <button className="shadow-lg text-md hover:text-lg shadow-black/40 cursor-pointer transition-all duration-100 rounded-b-none rounded-t-3xl  hover:bg-black flex items-center justify-center bg-black hover:h-20 h-16 w-fit text-white p-8 border-2 border-black">
-            Dashboard
+          <button className="shadow-lg text-md hover:text-lg shadow-black/40 cursor-pointer transition-all duration-100 rounded-b-none rounded-t-3xl  hover:bg-black flex items-center justify-center bg-black hover:h-20 h-16 w-fit text-white p-8 border-2 border-black gap-4">
+            <HomeIcon className="h-6 w-6" />
+            <span>Dashboard</span>
           </button>
         </Link>
       </div>
@@ -57,3 +77,23 @@ export const HeroUI = ({
     </div>
   );
 };
+
+function HomeIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+  );
+}

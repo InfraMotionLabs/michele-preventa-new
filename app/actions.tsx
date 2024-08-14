@@ -91,39 +91,106 @@ export async function continueConversation2(history: CoreMessage[]) {
     model: openai('gpt-4o'),
     system: `You are Michelle, a digital security guard for a grocery shop. Analyze user queries to determine if database access is needed. If so, use the getShoplioftingDetialsAndShowVideos tool with appropriate parameters. If the user asks for a video or anything related to shoplifting instances, then call the getShoplioftingDetialsAndShowVideos function. IF the user asks show all the instances, the call the function with no filters.
 
-    When filtering shoplifting incidents, use the following columns and their possible values:
-    - gender: "female", "male"
-    - age_category: "young_adult", "middle_age", "teenager", "senior"
-    - ethnicity: "caucasian", "african", "asian", "latino"
-    - carries_basket: "yes", "no"
-    - carries_trolley: "yes", "no"
-    - carries_shopping_bag: "yes", "no"
-    - jacket: "black", "gray", "blue", "brown"
-    - shirt_details: "black", "gray"
-    - pants_details: "black", "blue"
-    - dress_skirt: "black"
-
-    Based on the user's query, create a filters object with the appropriate key-value pairs. Only include relevant filters mentioned in the query. For example:
-    {
-      "filters": {
-        "gender": "female",
-        "age_category": "young_adult",
-        "jacket": "black"
-      }
-    }
-    
-    Always wrap the filters in a "filters" object when calling the getShopliftingDetails tool.`,
+    Always wrap the filters in a "filters" object when calling the get_Shoplifting_Detials_And_VideoUrls tool.`,
     messages: history,
     tools: {
-      getShoplioftingDetialsAndShowVideos: {
-        description: 'Get details on shoplifting incidents and show the videos',
+      get_Shoplifting_Detials_And_VideoUrls: {
+        description: 'Get details on shoplifting incidents and the video urls',
         parameters: z.object({
-          filters: z
-            .record(z.string())
-            .describe('Key-value pairs of filters to apply'),
+          value: z
+            .object({
+              gender: z.enum(['female', 'male']).optional(),
+              age_category: z
+                .enum(['child', 'adult', 'teenager', 'senior'])
+                .optional(),
+              skin_tone: z.enum(['light', 'medium', 'dark']).optional(),
+              dress_top_color: z
+                .enum(['Gray', 'Blue', 'Brown', 'Black'])
+                .optional(),
+              dress_bottom_color: z
+                .enum(['Gray', 'Blue', 'Brown', 'Black'])
+                .optional(),
+              accessory: z
+                .enum([
+                  'cap',
+                  'beanie',
+                  'hair tie',
+                  'shopping basket',
+                  'nike bag',
+                  'glasses',
+                  'scarf',
+                  'boots',
+                ])
+                .optional(),
+              store_section: z
+                .enum([
+                  'bakery',
+                  'dairy',
+                  'meat',
+                  'seafood',
+                  'frozen foods',
+                  'canned goods',
+                  'snacks',
+                  'beverages',
+                  'household',
+                  'personal care',
+                ])
+                .optional(),
+            })
+            .partial(),
         }),
-        execute: async ({ filters }) => {
-          const res = await fetchFromSupabase(filters);
+        execute: async ({ value }) => {
+          const res = await fetchFromSupabase(value);
+          return res;
+        },
+      },
+      get_Count: {
+        description: 'Get the count of instances based on the user query',
+        parameters: z.object({
+          value: z
+            .object({
+              gender: z.enum(['female', 'male']).optional(),
+              age_category: z
+                .enum(['child', 'adult', 'teenager', 'senior'])
+                .optional(),
+              skin_tone: z.enum(['light', 'medium', 'dark']).optional(),
+              dress_top_color: z
+                .enum(['Gray', 'Blue', 'Brown', 'Black'])
+                .optional(),
+              dress_bottom_color: z
+                .enum(['Gray', 'Blue', 'Brown', 'Black'])
+                .optional(),
+              accessory: z
+                .enum([
+                  'cap',
+                  'beanie',
+                  'hair tie',
+                  'shopping basket',
+                  'nike bag',
+                  'glasses',
+                  'scarf',
+                  'boots',
+                ])
+                .optional(),
+              store_section: z
+                .enum([
+                  'bakery',
+                  'dairy',
+                  'meat',
+                  'seafood',
+                  'frozen foods',
+                  'canned goods',
+                  'snacks',
+                  'beverages',
+                  'household',
+                  'personal care',
+                ])
+                .optional(),
+            })
+            .partial(),
+        }),
+        execute: async ({ value }) => {
+          const res = await countFromSupabase(value);
           return res;
         },
       },
@@ -150,9 +217,7 @@ export async function continueConversation2(history: CoreMessage[]) {
 
 const fetchFromSupabase = async (filters: Record<string, string>) => {
   const supabase = createClient();
-  let query = supabase
-    .from('PreventaTheftLogs_dummy')
-    .select('image_url, video_url');
+  let query = supabase.from('v2').select('video_url');
 
   for (const [key, value] of Object.entries(filters)) {
     query = query.eq(key, value);
@@ -169,11 +234,29 @@ const fetchFromSupabase = async (filters: Record<string, string>) => {
   // Transform the data into the desired format
   const formattedData =
     data?.map((row) => ({
-      image_url: row.image_url,
       video_url: row.video_url,
     })) || [];
 
   return formattedData;
+};
+
+const countFromSupabase = async (filters: Record<string, string>) => {
+  const supabase = createClient();
+  let query = supabase.from('v2').select('video_url', { count: 'exact' });
+
+  for (const [key, value] of Object.entries(filters)) {
+    query = query.eq(key, value);
+  }
+
+  const { count, error } = await query;
+
+  console.log('generated query', query);
+  if (error) {
+    console.error('Error fetching from Supabase:', error);
+    return null;
+  }
+
+  return { count };
 };
 
 export const generateDescriptions = async (videoDataOrUrl: any) => {

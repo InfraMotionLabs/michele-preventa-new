@@ -18,7 +18,7 @@ const AudioButton = ({
   isPlaying: boolean;
 }) => {
   return (
-    <div className="">
+    <div className="flex flex-col items-center justify-center gap-2">
       {/* <input
     className="w-full placeholder:text-gray-800 placeholder:italic p-4 rounded-md bg-opacity-50 bg-white backdrop-blur-md"
     placeholder="Type a message..."
@@ -47,7 +47,7 @@ const AudioButton = ({
           onMouseUp={() => {
             stopRecording();
           }}
-          className="self-center shadow-lg hover:border-black shadow-black/40 cursor-pointer text-black sm:hover:text-white transition-colors duration-100 sm:hover:bg-green-500 rounded-full border border-neutral-300 flex items-center justify-center bg-white h-24 w-24 overflow-hidden hover:text-black"
+          className="self-center shadow-lg hover:border-black shadow-black/40 cursor-pointer text-black sm:hover:text-white transition-colors duration-100 bg-green-400 hover:bg-green-500 rounded-full border-neutral-300 flex items-center justify-center  h-24 w-24 overflow-hidden hover:text-black"
         >
           {isRecording ? (
             <svg
@@ -80,7 +80,7 @@ const AudioButton = ({
       {isPlaying && (
         <button
           onClick={stopAudioAndAnimation}
-          className="bg-white rounded-full text-black text-xs shadow-lg group hover:bg-red-500 shadow-black/40 cursor-pointer h-16 w-16 flex flex-col items-center justify-center"
+          className="bg-white rounded-full text-black text-xs shadow-lg group hover:bg-red-500 shadow-black/40 cursor-pointer h-10 w-10 flex flex-col items-center justify-center"
         >
           <div className="w-4 h-4 bg-red-500 rounded-sm group-hover:bg-white"></div>
         </button>

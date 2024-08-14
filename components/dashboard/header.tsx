@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Building2Icon, StoreIcon } from 'lucide-react';
+import { Building2Icon, StoreIcon, UserIcon } from 'lucide-react';
 
 export const stores = [
   {
@@ -91,14 +91,76 @@ export default function Header() {
             <div className="rounded-full w-3 h-3 bg-green-500"></div>
             Online
           </div>
-          <Button
+          {/* <Button
             className="ml-auto h-10 w-10 rounded-full shrink-0 border border-neutral-500"
             size="icon"
             variant="outline"
           >
             <BellIcon className="h-6 w-6" />
             <span className="sr-only">Toggle notifications</span>
-          </Button>
+          </Button> */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                className="ml-auto h-10 w-10 relative rounded-full shrink-0 border border-neutral-500"
+                size="icon"
+                variant="outline"
+              >
+                <BellIcon className="h-6 w-6" />
+                <div className="h-3 w-3 bg-red-500 rounded-full absolute top-0 right-0"></div>
+                <span className="sr-only">Toggle notifications</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-80">
+              <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <div className="flex flex-col">
+                  <span className="font-semibold text-red-500">
+                    Unusual Activity Detected
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    Aisle 3 - Potential shoplifting
+                  </span>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <div className="flex flex-col">
+                  <span className="font-semibold text-red-500">
+                    Unusual Activity Detected
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    Aisle 9 - Potential shoplifting
+                  </span>
+                </div>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem>
+                <div className="flex flex-col">
+                  <span className="font-semibold">Queue Length Warning</span>
+                  <span className="text-sm text-gray-500">
+                    Checkout area exceeding 10 minutes
+                  </span>
+                </div>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem>
+                <div className="flex flex-col">
+                  <span className="font-semibold text-red-500">
+                    Unusual Activity Detected
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    Aisle 7 - Potential shoplifting
+                  </span>
+                </div>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-center">
+                View all notifications
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -106,13 +168,14 @@ export default function Header() {
                 size="icon"
                 variant="outline"
               >
-                <Image
+                <UserIcon className="h-6 w-6" />
+                {/* <Image
                   alt="Avatar"
                   className="rounded-full "
                   height="60"
                   width="60"
                   src="/SnehanPassport.png"
-                />
+                /> */}
                 <span className="sr-only">Toggle user menu</span>
               </Button>
             </DropdownMenuTrigger>
