@@ -93,6 +93,8 @@ export async function continueConversation2(history: CoreMessage[]) {
     
     The user will ask for details about any specific shoplifting instance, you will call the get_Shoplifting_Detials_And_VideoUrls function and generate the appropriate parameters from the user query for the function, which will return the details of the shoplifting instance and the video urls. The tool result will be handled on the client side to show the video and the details.
 
+    Dress top color means the jacket and the dress bottom color means the pants.
+
     Example user query: "Show me the video of the shoplifting instance of the female wearing blue pants and black pants"
     Example user query: "Show me all the shoplifting instances"
     Example user query: "Were there any shoplifting instances at the bakery section?"
@@ -207,7 +209,7 @@ export async function continueConversation2(history: CoreMessage[]) {
         },
       },
     },
-    maxToolRoundtrips: 3,
+    // maxToolRoundtrips: 2,
   });
 
   if (text) {
@@ -285,68 +287,91 @@ const countFromSupabase = async (filters: Record<string, string>) => {
   return { count };
 };
 
-export const generateDescriptions = async (videoDataOrUrl: any) => {
-  console.log('Input:', JSON.stringify(videoDataOrUrl, null, 2));
-  console.log('Input type:', typeof videoDataOrUrl);
+// export const generateDescriptions = async (videoDataOrUrl: any) => {
+//   console.log('Input:', JSON.stringify(videoDataOrUrl, null, 2));
+//   console.log('Input type:', typeof videoDataOrUrl);
 
+//   try {
+//     let imageUrl: string;
+
+//     if (typeof videoDataOrUrl === 'string') {
+//       imageUrl = videoDataOrUrl;
+//     } else if (typeof videoDataOrUrl === 'object' && videoDataOrUrl.image_url) {
+//       imageUrl = videoDataOrUrl.image_url;
+//     } else {
+//       throw new Error(
+//         'Invalid input: expected a string URL or an object with image_url property'
+//       );
+//     }
+
+//     const encodedUrl = encodeURI(imageUrl);
+//     console.log('Fetching image from:', encodedUrl);
+//     const imageResponse = await fetch(encodedUrl);
+
+//     if (!imageResponse.ok) {
+//       throw new Error(`HTTP error! status: ${imageResponse.status}`);
+//     }
+
+//     console.log('Image fetched successfully, getting arrayBuffer');
+//     const arrayBuffer = await imageResponse.arrayBuffer();
+
+//     if (!arrayBuffer) {
+//       throw new Error('Failed to get arrayBuffer from image response');
+//     }
+
+//     console.log('Converting arrayBuffer to base64');
+//     const base64Image = Buffer.from(arrayBuffer).toString('base64');
+
+//     const { text } = await generateText({
+//       model: openai('gpt-4o'),
+//       messages: [
+//         {
+//           role: 'system',
+//           content: `You will be given an image extracted from a footage of a person shoplifting at a store. The image belongs to a shoplifting instances. Describe the image in briefly, include the gender, age, ethnicity, the items they are stealing.
+
+//             Avoid mentioning the blue bounding box and id of the person.
+
+//             Instead of mentioning it as an image, mention it as "this footage", since this image is extracted from the footage.
+
+//             The description will spoken when the footage is being played, so make the description appropriate for the footage.
+
+//             Keep the description short and to the point.`,
+//         },
+//         {
+//           role: 'user',
+//           content: [
+//             {
+//               type: 'image',
+//               image: `data:image/jpeg;base64,${base64Image}`,
+//             },
+//             {
+//               type: 'text',
+//               text: 'Describe the image, include the gender, age, ethnicity, the items they are stealing.',
+//             },
+//           ],
+//         },
+//       ],
+//     });
+
+//     console.log('generated text', text);
+//     return text;
+//   } catch (error) {
+//     console.error('Error in generateDescriptions:', error);
+//   }
+// };
+
+export const generateDescriptions2 = async (details: any) => {
   try {
-    let imageUrl: string;
-
-    if (typeof videoDataOrUrl === 'string') {
-      imageUrl = videoDataOrUrl;
-    } else if (typeof videoDataOrUrl === 'object' && videoDataOrUrl.image_url) {
-      imageUrl = videoDataOrUrl.image_url;
-    } else {
-      throw new Error(
-        'Invalid input: expected a string URL or an object with image_url property'
-      );
-    }
-
-    const encodedUrl = encodeURI(imageUrl);
-    console.log('Fetching image from:', encodedUrl);
-    const imageResponse = await fetch(encodedUrl);
-
-    if (!imageResponse.ok) {
-      throw new Error(`HTTP error! status: ${imageResponse.status}`);
-    }
-
-    console.log('Image fetched successfully, getting arrayBuffer');
-    const arrayBuffer = await imageResponse.arrayBuffer();
-
-    if (!arrayBuffer) {
-      throw new Error('Failed to get arrayBuffer from image response');
-    }
-
-    console.log('Converting arrayBuffer to base64');
-    const base64Image = Buffer.from(arrayBuffer).toString('base64');
-
     const { text } = await generateText({
       model: openai('gpt-4o'),
       messages: [
         {
           role: 'system',
-          content: `You will be given an image extracted from a footage of a person shoplifting at a store. The image belongs to a shoplifting instances. Describe the image in briefly, include the gender, age, ethnicity, the items they are stealing. 
-
-            Avoid mentioning the blue bounding box and id of the person. 
-
-            Instead of mentioning it as an image, mention it as "this footage", since this image is extracted from the footage.
-            
-            The description will spoken when the footage is being played, so make the description appropriate for the footage.
-            
-            Keep the description short and to the point.`,
+          content: `You will be given details about a shoplifting instance. Describe the details briefly, include the gender, age, skintone, the items they are stealing and the store section.`,
         },
         {
           role: 'user',
-          content: [
-            {
-              type: 'image',
-              image: `data:image/jpeg;base64,${base64Image}`,
-            },
-            {
-              type: 'text',
-              text: 'Describe the image, include the gender, age, ethnicity, the items they are stealing.',
-            },
-          ],
+          content: JSON.stringify(details), // Convert details to a string
         },
       ],
     });

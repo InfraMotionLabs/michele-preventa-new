@@ -6,29 +6,7 @@ import {
 } from '@/components/ui/card';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-
-export const stores = [
-  {
-    name: 'ICA Varnhem',
-    address: 'Östra Förstadsgatan 50, 212 12 Malmö',
-    image: '/maps/ica_varnhem.png',
-  },
-  {
-    name: 'ICA Kvantum',
-    address: 'Norra Kungsgatan 8, 642 37 Flen',
-    image: '/maps/ica_kvantum_flen.png',
-  },
-  {
-    name: 'ICA Supermarket',
-    address: 'Hornsgatan 146, A-B, 117 28 Stockholm',
-    image: '/maps/ica_supermarket_stockholm.png',
-  },
-  {
-    name: 'Stkhlm Warehouse',
-    address: 'Tavastgatan 34, 118 24 Stockholm',
-    image: '/maps/warehouse.png',
-  },
-];
+import { stores } from '@/components/dashboard/types';
 
 export default function Deployments() {
   return (

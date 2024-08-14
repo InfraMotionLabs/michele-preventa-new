@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/select';
 import Image from 'next/image';
 import { Button } from '../ui/button';
-import { Customer, customers } from '@/app/dashboard/customers/page';
+import { Customer, customers } from './types';
 
 const CustomerHeatMap = () => {
   const [selected, setSelected] = useState<Customer | null>(customers[0]);

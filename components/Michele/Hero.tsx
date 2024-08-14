@@ -14,7 +14,7 @@ import { HeroUI } from './HeroUI';
 import {
   continueConversation,
   continueConversation2,
-  generateDescriptions,
+  generateDescriptions2,
 } from '@/app/actions';
 
 function Hero() {
@@ -72,15 +72,16 @@ function Hero() {
       ]);
       await synthesizeAudio(result.content as string);
     } else if (result.type === 'toolResult') {
+      console.log('Result:', result);
       if (Array.isArray(result.content) && result.content.length > 0) {
-        const videoData = result.content[0];
-        if (videoData && 'video_url' in videoData) {
-          await executeVideoPlayback(result.content);
+        if (Array.isArray(result.content[0])) {
+          await executeVideoPlayback(result.content[0]);
         } else {
-          console.error('Invalid videoData:', videoData);
+          console.error(
+            'Invalid toolResult content structure:',
+            result.content
+          );
         }
-      } else if (result.content === null) {
-        console.error('toolResult content is null');
       } else {
         console.error('Invalid toolResult content:', result.content);
       }
@@ -155,7 +156,7 @@ function Hero() {
 
       const item = videoData[i];
       console.log('Item:', item);
-      const description = await generateDescriptions(item.image_url);
+      const description = await generateDescriptions2(item.details);
       if (isCancelledRef.current) break;
 
       setMessages((prevMessages) => [
