@@ -29,7 +29,7 @@ export const HeroUI = ({
         cameraZoomed={cameraZoomed}
         setCameraZoomed={setCameraZoomed}
       /> */}
-      <div className="flex flex-row py-6 bg-neutral-100 items-center gap-10 pr-8 rounded-l-3xl rounded-r-full bottom-10 shadow-lg shadow-black/40 max-w-lg mx-auto absolute pl-6 text-start">
+      <div className="flex flex-row py-6 bg-neutral-100 items-center gap-10 pr-8 rounded-l-3xl rounded-r-full bottom-20 shadow-lg shadow-black/40 max-w-lg mx-auto absolute pl-6 text-start">
         <div>
           <h2 className="text-lg font-bold mb-2">
             I&apos;m Michelle! Your Digital Security Assistant

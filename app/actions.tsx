@@ -93,7 +93,7 @@ export async function continueConversation2(history: CoreMessage[]) {
     
     The user will ask for details about any specific shoplifting instance, you will call the get_Shoplifting_Detials_And_VideoUrls function and generate the appropriate parameters from the user query for the function, which will return the details of the shoplifting instance and the video urls. The tool result will be handled on the client side to show the video and the details.
 
-    Dress top color means the jacket and the dress bottom color means the pants.
+    If the user asks about details of shoplifting instances mentioning the color of the jacket or pants, call the get_Shoplifting_Detials_And_VideoUrls function with the appropriate filters, dress_top_color and dress_bottom_color.
 
     Example user query: "Show me the video of the shoplifting instance of the female wearing blue pants and black pants"
     Example user query: "Show me all the shoplifting instances"
@@ -104,7 +104,9 @@ export async function continueConversation2(history: CoreMessage[]) {
     If the user asks for count of specific shoplifting instances, call the get_Count function with the appropriate filters. It will return the count of the shoplifting instances. 
 
     Example user query: "How many shoplifting instances were there at the bakery section?"
-    Example user query: "How many shop lifters carry a nike bag?"`,
+    Example user query: "How many shop lifters carry a nike bag?"
+    
+    When calling the functions, generate the parameters from the user query. For example, if the user asks for the video of the shoplifting instance of the female wearing blue pants and black jacket, the parameters will be {gender: "female", dress_top_color: "black", dress_bottom_color: "blue"}.`,
     messages: history,
     tools: {
       get_Shoplifting_Detials_And_VideoUrls: {
@@ -113,43 +115,77 @@ export async function continueConversation2(history: CoreMessage[]) {
         parameters: z.object({
           value: z
             .object({
-              gender: z.enum(['female', 'male']).optional(),
+              gender: z
+                .enum(['female', 'male'], {
+                  description:
+                    'The gender of the person involved in the shoplifting incident',
+                })
+                .optional()
+                .transform((val) => val?.toLowerCase() ?? val),
               age_category: z
-                .enum(['child', 'adult', 'teenager', 'senior'])
-                .optional(),
-              skin_tone: z.enum(['light', 'medium', 'dark']).optional(),
+                .enum(['child', 'adult', 'teenager', 'senior'], {
+                  description: 'The approximate age category of the person',
+                })
+                .optional()
+                .transform((val) => val?.toLowerCase() ?? val),
+              skin_tone: z
+                .enum(['light', 'medium', 'dark'], {
+                  description: 'The skin tone of the person',
+                })
+                .optional()
+                .transform((val) => val?.toLowerCase() ?? val),
               dress_top_color: z
-                .enum(['Gray', 'Blue', 'Brown', 'Black'])
-                .optional(),
+                .enum(['gray', 'blue', 'brown', 'black'], {
+                  description: "The color of the person's top clothing",
+                })
+                .optional()
+                .transform((val) => val?.toLowerCase() ?? val),
               dress_bottom_color: z
-                .enum(['Gray', 'Blue', 'Brown', 'Black'])
-                .optional(),
+                .enum(['gray', 'blue', 'brown', 'black'], {
+                  description: "The color of the person's bottom clothing",
+                })
+                .optional()
+                .transform((val) => val?.toLowerCase() ?? val),
               accessory: z
-                .enum([
-                  'cap',
-                  'beanie',
-                  'hair tie',
-                  'shopping basket',
-                  'nike bag',
-                  'glasses',
-                  'scarf',
-                  'boots',
-                ])
-                .optional(),
+                .enum(
+                  [
+                    'cap',
+                    'beanie',
+                    'hair tie',
+                    'shopping basket',
+                    'nike bag',
+                    'glasses',
+                    'scarf',
+                    'boots',
+                  ],
+                  {
+                    description:
+                      'Any notable accessory the person is wearing or carrying',
+                  }
+                )
+                .optional()
+                .transform((val) => val?.toLowerCase() ?? val),
               store_section: z
-                .enum([
-                  'bakery',
-                  'dairy',
-                  'meat',
-                  'seafood',
-                  'frozen foods',
-                  'canned goods',
-                  'snacks',
-                  'beverages',
-                  'household',
-                  'personal care',
-                ])
-                .optional(),
+                .enum(
+                  [
+                    'bakery',
+                    'dairy',
+                    'meat',
+                    'seafood',
+                    'frozen foods',
+                    'canned goods',
+                    'snacks',
+                    'beverages',
+                    'household',
+                    'personal care',
+                  ],
+                  {
+                    description:
+                      'The section of the store where the shoplifting incident occurred',
+                  }
+                )
+                .optional()
+                .transform((val) => val?.toLowerCase() ?? val),
             })
             .partial(),
         }),
@@ -163,43 +199,77 @@ export async function continueConversation2(history: CoreMessage[]) {
         parameters: z.object({
           value: z
             .object({
-              gender: z.enum(['female', 'male']).optional(),
+              gender: z
+                .enum(['female', 'male'], {
+                  description:
+                    'The gender of the person involved in the shoplifting incident',
+                })
+                .optional()
+                .transform((val) => val?.toLowerCase() ?? val),
               age_category: z
-                .enum(['child', 'adult', 'teenager', 'senior'])
-                .optional(),
-              skin_tone: z.enum(['light', 'medium', 'dark']).optional(),
+                .enum(['child', 'adult', 'teenager', 'senior'], {
+                  description: 'The approximate age category of the person',
+                })
+                .optional()
+                .transform((val) => val?.toLowerCase() ?? val),
+              skin_tone: z
+                .enum(['light', 'medium', 'dark'], {
+                  description: 'The skin tone of the person',
+                })
+                .optional()
+                .transform((val) => val?.toLowerCase() ?? val),
               dress_top_color: z
-                .enum(['Gray', 'Blue', 'Brown', 'Black'])
-                .optional(),
+                .enum(['gray', 'blue', 'brown', 'black'], {
+                  description: "The color of the person's top clothing",
+                })
+                .optional()
+                .transform((val) => val?.toLowerCase() ?? val),
               dress_bottom_color: z
-                .enum(['Gray', 'Blue', 'Brown', 'Black'])
-                .optional(),
+                .enum(['gray', 'blue', 'brown', 'black'], {
+                  description: "The color of the person's bottom clothing",
+                })
+                .optional()
+                .transform((val) => val?.toLowerCase() ?? val),
               accessory: z
-                .enum([
-                  'cap',
-                  'beanie',
-                  'hair tie',
-                  'shopping basket',
-                  'nike bag',
-                  'glasses',
-                  'scarf',
-                  'boots',
-                ])
-                .optional(),
+                .enum(
+                  [
+                    'cap',
+                    'beanie',
+                    'hair tie',
+                    'shopping basket',
+                    'nike bag',
+                    'glasses',
+                    'scarf',
+                    'boots',
+                  ],
+                  {
+                    description:
+                      'Any notable accessory the person is wearing or carrying',
+                  }
+                )
+                .optional()
+                .transform((val) => val?.toLowerCase() ?? val),
               store_section: z
-                .enum([
-                  'bakery',
-                  'dairy',
-                  'meat',
-                  'seafood',
-                  'frozen foods',
-                  'canned goods',
-                  'snacks',
-                  'beverages',
-                  'household',
-                  'personal care',
-                ])
-                .optional(),
+                .enum(
+                  [
+                    'bakery',
+                    'dairy',
+                    'meat',
+                    'seafood',
+                    'frozen foods',
+                    'canned goods',
+                    'snacks',
+                    'beverages',
+                    'household',
+                    'personal care',
+                  ],
+                  {
+                    description:
+                      'The section of the store where the shoplifting incident occurred',
+                  }
+                )
+                .optional()
+                .transform((val) => val?.toLowerCase() ?? val),
             })
             .partial(),
         }),
