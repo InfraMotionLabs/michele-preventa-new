@@ -18,7 +18,7 @@ const AudioButton = ({
   isPlaying: boolean;
 }) => {
   return (
-    <div className="flex flex-col items-center justify-center gap-2">
+    <div className="flex flex-row items-center justify-center gap-2 pl-4">
       {/* <input
     className="w-full placeholder:text-gray-800 placeholder:italic p-4 rounded-md bg-opacity-50 bg-white backdrop-blur-md"
     placeholder="Type a message..."
@@ -37,6 +37,14 @@ const AudioButton = ({
   >
     Send
   </button> */}
+      {isPlaying && (
+        <button
+          onClick={stopAudioAndAnimation}
+          className="bg-white rounded-full text-black text-xs shadow-lg group hover:bg-red-500 shadow-black/40 cursor-pointer h-10 w-10 flex flex-col items-center justify-center"
+        >
+          <div className="w-4 h-4 bg-red-500 rounded-sm group-hover:bg-white"></div>
+        </button>
+      )}
       {isGenerating ? (
         <div className="flex items-center justify-center bg-white h-16 w-16 rounded-full border border-neutral-300  overflow-hidden">
           <LoadingSpinner size={40} />
@@ -76,14 +84,6 @@ const AudioButton = ({
             </svg>
           )}
         </div>
-      )}
-      {isPlaying && (
-        <button
-          onClick={stopAudioAndAnimation}
-          className="bg-white rounded-full text-black text-xs shadow-lg group hover:bg-red-500 shadow-black/40 cursor-pointer h-10 w-10 flex flex-col items-center justify-center"
-        >
-          <div className="w-4 h-4 bg-red-500 rounded-sm group-hover:bg-white"></div>
-        </button>
       )}
     </div>
   );

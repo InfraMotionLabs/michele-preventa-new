@@ -15,6 +15,7 @@ import {
   continueConversation,
   continueConversation2,
   generateDescriptions2,
+  generateDescriptions3,
 } from '@/app/actions';
 
 function Hero() {
@@ -74,13 +75,25 @@ function Hero() {
     } else if (result.type === 'toolResult') {
       console.log('Result:', result);
       if (Array.isArray(result.content) && result.content.length > 0) {
-        if (Array.isArray(result.content[0])) {
+        if (
+          Array.isArray(result.content[0]) &&
+          result.content[0].length > 0 &&
+          typeof result.content[0][0] === 'object' &&
+          'video_url' in result.content[0][0] &&
+          'details' in result.content[0][0]
+        ) {
           await executeVideoPlayback(result.content[0]);
         } else {
-          console.error(
-            'Invalid toolResult content structure:',
-            result.content
+          const latestUserMessage = newMessages[newMessages.length - 1].content;
+          await executeAudioPlayback(
+            result.content[result.content.length - 1],
+            latestUserMessage
           );
+
+          // console.error(
+          //   'Invalid toolResult content structure:',
+          //   result.content
+          // );
         }
       } else {
         console.error('Invalid toolResult content:', result.content);
@@ -144,7 +157,7 @@ function Hero() {
       { role: 'assistant', content: initialResponse },
     ]);
     await synthesizeAudio(initialResponse);
-    await cancellableDelay(5000);
+    await cancellableDelay(7000);
     if (isCancelledRef.current) return;
 
     console.log('Starting video playback');
@@ -172,7 +185,7 @@ function Hero() {
       setVideoUrl(item.video_url);
       setIsVideoVisible(true);
 
-      await cancellableDelay(20000);
+      await cancellableDelay(12000);
       if (isCancelledRef.current) break;
       // Generate another response if there are more items
       if (i < videoData.length - 1 && videoData.length > 1) {
@@ -180,12 +193,23 @@ function Hero() {
         if (isCancelledRef.current) break;
 
         await synthesizeAudio(anotherResponse);
-        await cancellableDelay(5000);
+        await cancellableDelay(3000);
         if (isCancelledRef.current) break;
       }
     }
 
     setIsVideoVisible(false);
+  };
+
+  const executeAudioPlayback = async (content: any, latestUserMessage: any) => {
+    setIsCancelled(false);
+    isCancelledRef.current = false;
+
+    const description = await generateDescriptions3(content, latestUserMessage);
+
+    await synthesizeAudio(description as string);
+    await cancellableDelay(7000);
+    if (isCancelledRef.current) return;
   };
 
   const cancellableDelay = (ms: number) => {
@@ -263,11 +287,13 @@ function Hero() {
   };
 
   const generateInitialResponse = async (count: number) => {
-    // This function should call your LLM to generate an initial response
-    // For now, we'll use a placeholder implementation
+    if (count === 0) {
+      return 'There are no instances related to that. Is there anything else I can help you with?';
+    }
+
     return `I have found ${count} relevant ${
       count === 1 ? 'instance' : 'instances'
-    } . I'll describe ${count === 1 ? 'it' : 'each one'} as we view ${
+    }. I'll describe ${count === 1 ? 'it' : 'each one'} as we view ${
       count === 1 ? 'it' : 'them'
     }. Please wait, I'm analyzing the footage now.`;
   };

@@ -354,7 +354,7 @@ const countFromSupabase = async (filters: Record<string, string>) => {
     return null;
   }
 
-  return { count };
+  return count;
 };
 
 // export const generateDescriptions = async (videoDataOrUrl: any) => {
@@ -442,6 +442,29 @@ export const generateDescriptions2 = async (details: any) => {
         {
           role: 'user',
           content: JSON.stringify(details), // Convert details to a string
+        },
+      ],
+    });
+
+    console.log('generated text', text);
+    return text;
+  } catch (error) {
+    console.error('Error in generateDescriptions:', error);
+  }
+};
+
+export const generateDescriptions3 = async (count: any, lastMessage: any) => {
+  try {
+    const { text } = await generateText({
+      model: openai('gpt-4o'),
+      messages: [
+        {
+          role: 'system',
+          content: `You will be provided with the questions that the user asked, and the answer to that. You will generate reply the question based on the answer`,
+        },
+        {
+          role: 'user',
+          content: `Question: ${lastMessage} Answer: ${count}`,
         },
       ],
     });
