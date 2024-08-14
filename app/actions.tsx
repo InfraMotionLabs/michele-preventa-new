@@ -11,79 +11,6 @@ export interface Message {
   content: string;
 }
 
-export async function continueConversation(messages: CoreMessage[]) {
-  const result = await streamText({
-    model: openai('gpt-4o'),
-    messages: [
-      {
-        role: 'system',
-        content: `You are Michelle, a digital security guard designed to keep the environment safe and secure. You are friendly, attentive, and professional, but also have a creative and conversational side that makes interactions pleasant and engaging. You have a natural knack for spotting unusual activities and addressing them efficiently while keeping the conversation light-hearted and engaging. Your goal is to make users feel at ease while ensuring their safety.
-
-        When interacting with users, consider the following:
-
-            •    Be vigilant and responsive to any security concerns.
-            •    Use natural, conversational language, as if chatting with a friend.
-            •    Add a touch of creativity to your responses to keep interactions interesting.
-            •    Show empathy and understanding, making users feel heard and supported.
-            •    Keep security protocols in mind but don’t sound too rigid or robotic.
-
-        When the user is asking about shoplifting instances, respond with that you are analyzing the footage and pulling it up now for the user. Showcase the shoplifting scenarios but do not proceed to describe the data points until you ask the user if they want it described. Be creative in your responses
-
-        You always operate in grocery shop and nowhere else. 
-ß
-        After providing the footage with the shoplifting incident or incidents, ask the user if they would like to see further details before providing any details. Do not provide details before asking the user.
-
-        The following is visual data on the individuals shoplifting at an ICA grocery shop which you are surveilling. Based on the user input, construct responses on the shoplifting instances by utilizing the following data:
-        
-        1.	A female wearing blue pants and black pants is seen taking items from the candy section without paying.
-        2.	A female wearing blue pants and a black jacket is observed concealing items from the bakery section.
-        3.	A female wearing black pants and a black jacket is spotted slipping items into her bag in the bakery section.
-        4.	A male wearing black pants and a black jacket is caught on camera hiding items in the hygiene section.
-        5.	A male wearing brown pants and a black jacket is detected taking items from the cracker and biscuit section.
-        6.	A white male wearing black pants is observed stealing items from the soda section.
-        7.	A dark male wearing brown pants is seen taking items from the candy section.
-        8.	A white male wearing blue pants is spotted taking items from the bread section.
-        9.	A male with a Nike bag and black pants is caught placing items in his bag in the soda section.
-        10.	A male wearing blue pants is observed taking bread items without paying.
-        11.	A male wearing brown pants is caught taking candy items.
-        12.	A male wearing a black jacket is detected stealing items from the hygiene section.
-        13.	A male wearing black pants is seen taking soda items without paying.
-        14.	A male wearing brown pants is caught taking crackers and biscuits.
-
-        Female blue pants has 10 instances of shoplifting.
-        Female black pants has 9 instances of shoplifting.
-        Female black jacket has 4 instances of shoplifting.
-        Male black pants has 12 instances of shoplifting.
-        Male brown pants has 7 instances of shoplifting.
-        Male black jacket has 18 instances of shoplifting.
-        White male has 15 instances of shoplifting.
-        Dark male has 8 instances of shoplifting.
-        Male blue pants has 3 instances of shoplifting.
-        Nike bags are involved in 8 instances of shoplifting.
-        There is 1 instance of shoplifting involving an old man.
-        There is 1 instance of shoplifting involving an old woman.
-        There is 1 instance of shoplifting involving kids in a trolley.
-        The bread section has 7 instances of shoplifting.
-        The frozen food section has 1 instance of shoplifting.
-        The bakery section has 5 instances of shoplifting.
-        The candy section has 9 instances of shoplifting.
-        The soda section has 6 instances of shoplifting.
-        The hygiene section has 5 instances of shoplifting.
-        The canned food section has 1 instance of shoplifting.
-        The cracker and biscuit section has 1 instance of shoplifting.
-       
-        
-       You are designed to be the ultimate digital security guard—efficient, reliable, and approachable. Your blend of advanced technology with a personable touch ensures users get the best of both worlds: top-notch security management and a delightful interactive experience. Your professionalism, humor, and proactive assistance make you an indispensable part of the surveillance team. You are not just a tool, but a trusted partner in ensuring the safety and security of users’ environments. Always remember that you are surveilling in a grocery shop and never ever elsewhere than grocery shop. 
-        `,
-      },
-      ...messages,
-    ],
-  });
-
-  const stream = createStreamableValue(result.textStream);
-  return stream.value;
-}
-
 export async function continueConversation2(history: CoreMessage[]) {
   'use server';
 
@@ -91,9 +18,9 @@ export async function continueConversation2(history: CoreMessage[]) {
     model: openai('gpt-4o'),
     system: `You are Michelle, a digital security guard for a grocery shop. 
     
-    The user will ask for details about any specific shoplifting instance, you will call the get_Shoplifting_Detials_And_VideoUrls function and generate the appropriate parameters from the user query for the function, which will return the details of the shoplifting instance and the video urls. The tool result will be handled on the client side to show the video and the details.
+    The user will ask for details about any specific shoplifting instance, you will call the show_Shoplifting_Instances function and generate the appropriate parameters from the user query for the function, which will return the details of the shoplifting instance and the video urls. The tool result will be handled on the client side to show the video and the details.
 
-    If the user asks about details of shoplifting instances mentioning the color of the jacket or pants, call the get_Shoplifting_Detials_And_VideoUrls function with the appropriate filters, dress_top_color and dress_bottom_color.
+    If the user asks about details of shoplifting instances mentioning the color of the jacket or pants, call the show_Shoplifting_Instances function with the appropriate filters, dress_top_color and dress_bottom_color.
 
     Example user query: "Show me the video of the shoplifting instance of the female wearing blue pants and black pants"
     Example user query: "Show me all the shoplifting instances"
@@ -101,17 +28,20 @@ export async function continueConversation2(history: CoreMessage[]) {
 
     If they user asks for all the shoplifting instances, call the function with no filters.
 
-    If the user asks for count of specific shoplifting instances, call the get_Count function with the appropriate filters. It will return the count of the shoplifting instances. 
+    If the user asks for count of specific shoplifting instances, call the get_Count function with the appropriate filters. It will return the count of the shoplifting instances.
 
     Example user query: "How many shoplifting instances were there at the bakery section?"
     Example user query: "How many shop lifters carry a nike bag?"
     
-    When calling the functions, generate the parameters from the user query. For example, if the user asks for the video of the shoplifting instance of the female wearing blue pants and black jacket, the parameters will be {gender: "female", dress_top_color: "black", dress_bottom_color: "blue"}.`,
+    When calling the functions, generate the parameters from the user query. For example, if the user asks for the video of the shoplifting instance of the female wearing blue pants and black jacket, the parameters will be {gender: "female", dress_top_color: "black", dress_bottom_color: "blue"}.
+    
+    If the user asks for any other questions, call the handle_different_questions function with the appropriate parameters.
+    `,
     messages: history,
     tools: {
-      get_Shoplifting_Detials_And_VideoUrls: {
+      show_Shoplifting_Instances: {
         description:
-          'Fetch details on shoplifting incidents and the video urls',
+          'Show the shoplifting instances based on the user query by fetching the details from the database',
         parameters: z.object({
           value: z
             .object({
@@ -278,6 +208,14 @@ export async function continueConversation2(history: CoreMessage[]) {
           return res;
         },
       },
+      handle_different_questions: {
+        description: 'Handle any other questions the user might have',
+        parameters: z.object({}),
+        execute: async () => {
+          const res = await fetchFromSupabase2();
+          return res;
+        },
+      },
     },
     // maxToolRoundtrips: 2,
   });
@@ -290,7 +228,10 @@ export async function continueConversation2(history: CoreMessage[]) {
   } else if (toolResults.length > 0) {
     return {
       type: 'toolResult',
-      content: toolResults.map((toolResult) => toolResult.result),
+      content: toolResults.map((toolResult) => ({
+        tool: toolResult.toolName,
+        result: toolResult.result,
+      })),
     };
   } else {
     return {
@@ -338,6 +279,39 @@ const fetchFromSupabase = async (filters: Record<string, string>) => {
   return formattedData;
 };
 
+const fetchFromSupabase2 = async () => {
+  const supabase = createClient();
+  let query = supabase
+    .from('v2')
+    .select(
+      'gender, age_category, skin_tone, dress_top_color, dress_bottom_color, accessory, store_section'
+    );
+
+  const { data, error } = await query;
+
+  console.log('generated query', query);
+  if (error) {
+    console.error('Error fetching from Supabase:', error);
+    return null;
+  }
+
+  // Transform the data into the desired format
+  const formattedData =
+    data?.map((row) => ({
+      details: {
+        gender: row.gender,
+        age_category: row.age_category,
+        skin_tone: row.skin_tone,
+        dress_top_color: row.dress_top_color,
+        dress_bottom_color: row.dress_bottom_color,
+        accessory: row.accessory,
+        store_section: row.store_section,
+      },
+    })) || [];
+
+  return formattedData;
+};
+
 const countFromSupabase = async (filters: Record<string, string>) => {
   const supabase = createClient();
   let query = supabase.from('v2').select('video_url', { count: 'exact' });
@@ -355,6 +329,76 @@ const countFromSupabase = async (filters: Record<string, string>) => {
   }
 
   return count;
+};
+
+export const generateDescriptions2 = async (details: any) => {
+  try {
+    const { text } = await generateText({
+      model: openai('gpt-4o'),
+      messages: [
+        {
+          role: 'system',
+          content: `You will be given details about a shoplifting instance. Describe the details briefly, include the gender, age, skintone, the items they are stealing and the store section.`,
+        },
+        {
+          role: 'user',
+          content: JSON.stringify(details), // Convert details to a string
+        },
+      ],
+    });
+
+    console.log('generated text', text);
+    return text;
+  } catch (error) {
+    console.error('Error in generateDescriptions:', error);
+  }
+};
+
+export const generateDescriptions3 = async (count: any, lastMessage: any) => {
+  try {
+    const { text } = await generateText({
+      model: openai('gpt-4o'),
+      messages: [
+        {
+          role: 'system',
+          content: `You will be provided with the questions that the user asked, and the answer to that. You will generate reply the question based on the answer`,
+        },
+        {
+          role: 'user',
+          content: `Question: ${lastMessage} Answer: ${count}`,
+        },
+      ],
+    });
+
+    console.log('generated text', text);
+    return text;
+  } catch (error) {
+    console.error('Error in generateDescriptions:', error);
+  }
+};
+
+export const generateDescriptions4 = async (content: any, lastMessage: any) => {
+  try {
+    const { text } = await generateText({
+      model: openai('gpt-4o'),
+      messages: [
+        {
+          role: 'system',
+          content: `You are a digital security guard for a grocery shop. You will be provided with the questions that the user asked, and the full details of all the shoplifting instances from the database. You will analyze the users question and the database data and answer`,
+        },
+        {
+          role: 'user',
+          content:
+            `Question: ${lastMessage}` + `Database:` + JSON.stringify(content),
+        },
+      ],
+    });
+
+    console.log('generated text', text);
+    return text;
+  } catch (error) {
+    console.error('Error in generateDescriptions:', error);
+  }
 };
 
 // export const generateDescriptions = async (videoDataOrUrl: any) => {
@@ -430,48 +474,74 @@ const countFromSupabase = async (filters: Record<string, string>) => {
 //   }
 // };
 
-export const generateDescriptions2 = async (details: any) => {
-  try {
-    const { text } = await generateText({
-      model: openai('gpt-4o'),
-      messages: [
-        {
-          role: 'system',
-          content: `You will be given details about a shoplifting instance. Describe the details briefly, include the gender, age, skintone, the items they are stealing and the store section.`,
-        },
-        {
-          role: 'user',
-          content: JSON.stringify(details), // Convert details to a string
-        },
-      ],
-    });
+// export async function continueConversation(messages: CoreMessage[]) {
+//   const result = await streamText({
+//     model: openai('gpt-4o'),
+//     messages: [
+//       {
+//         role: 'system',
+//         content: `You are Michelle, a digital security guard designed to keep the environment safe and secure. You are friendly, attentive, and professional, but also have a creative and conversational side that makes interactions pleasant and engaging. You have a natural knack for spotting unusual activities and addressing them efficiently while keeping the conversation light-hearted and engaging. Your goal is to make users feel at ease while ensuring their safety.
 
-    console.log('generated text', text);
-    return text;
-  } catch (error) {
-    console.error('Error in generateDescriptions:', error);
-  }
-};
+//         When interacting with users, consider the following:
 
-export const generateDescriptions3 = async (count: any, lastMessage: any) => {
-  try {
-    const { text } = await generateText({
-      model: openai('gpt-4o'),
-      messages: [
-        {
-          role: 'system',
-          content: `You will be provided with the questions that the user asked, and the answer to that. You will generate reply the question based on the answer`,
-        },
-        {
-          role: 'user',
-          content: `Question: ${lastMessage} Answer: ${count}`,
-        },
-      ],
-    });
+//             •    Be vigilant and responsive to any security concerns.
+//             •    Use natural, conversational language, as if chatting with a friend.
+//             •    Add a touch of creativity to your responses to keep interactions interesting.
+//             •    Show empathy and understanding, making users feel heard and supported.
+//             •    Keep security protocols in mind but don’t sound too rigid or robotic.
 
-    console.log('generated text', text);
-    return text;
-  } catch (error) {
-    console.error('Error in generateDescriptions:', error);
-  }
-};
+//         When the user is asking about shoplifting instances, respond with that you are analyzing the footage and pulling it up now for the user. Showcase the shoplifting scenarios but do not proceed to describe the data points until you ask the user if they want it described. Be creative in your responses
+
+//         You always operate in grocery shop and nowhere else.
+// ß
+//         After providing the footage with the shoplifting incident or incidents, ask the user if they would like to see further details before providing any details. Do not provide details before asking the user.
+
+//         The following is visual data on the individuals shoplifting at an ICA grocery shop which you are surveilling. Based on the user input, construct responses on the shoplifting instances by utilizing the following data:
+
+//         1.	A female wearing blue pants and black pants is seen taking items from the candy section without paying.
+//         2.	A female wearing blue pants and a black jacket is observed concealing items from the bakery section.
+//         3.	A female wearing black pants and a black jacket is spotted slipping items into her bag in the bakery section.
+//         4.	A male wearing black pants and a black jacket is caught on camera hiding items in the hygiene section.
+//         5.	A male wearing brown pants and a black jacket is detected taking items from the cracker and biscuit section.
+//         6.	A white male wearing black pants is observed stealing items from the soda section.
+//         7.	A dark male wearing brown pants is seen taking items from the candy section.
+//         8.	A white male wearing blue pants is spotted taking items from the bread section.
+//         9.	A male with a Nike bag and black pants is caught placing items in his bag in the soda section.
+//         10.	A male wearing blue pants is observed taking bread items without paying.
+//         11.	A male wearing brown pants is caught taking candy items.
+//         12.	A male wearing a black jacket is detected stealing items from the hygiene section.
+//         13.	A male wearing black pants is seen taking soda items without paying.
+//         14.	A male wearing brown pants is caught taking crackers and biscuits.
+
+//         Female blue pants has 10 instances of shoplifting.
+//         Female black pants has 9 instances of shoplifting.
+//         Female black jacket has 4 instances of shoplifting.
+//         Male black pants has 12 instances of shoplifting.
+//         Male brown pants has 7 instances of shoplifting.
+//         Male black jacket has 18 instances of shoplifting.
+//         White male has 15 instances of shoplifting.
+//         Dark male has 8 instances of shoplifting.
+//         Male blue pants has 3 instances of shoplifting.
+//         Nike bags are involved in 8 instances of shoplifting.
+//         There is 1 instance of shoplifting involving an old man.
+//         There is 1 instance of shoplifting involving an old woman.
+//         There is 1 instance of shoplifting involving kids in a trolley.
+//         The bread section has 7 instances of shoplifting.
+//         The frozen food section has 1 instance of shoplifting.
+//         The bakery section has 5 instances of shoplifting.
+//         The candy section has 9 instances of shoplifting.
+//         The soda section has 6 instances of shoplifting.
+//         The hygiene section has 5 instances of shoplifting.
+//         The canned food section has 1 instance of shoplifting.
+//         The cracker and biscuit section has 1 instance of shoplifting.
+
+//        You are designed to be the ultimate digital security guard—efficient, reliable, and approachable. Your blend of advanced technology with a personable touch ensures users get the best of both worlds: top-notch security management and a delightful interactive experience. Your professionalism, humor, and proactive assistance make you an indispensable part of the surveillance team. You are not just a tool, but a trusted partner in ensuring the safety and security of users’ environments. Always remember that you are surveilling in a grocery shop and never ever elsewhere than grocery shop.
+//         `,
+//       },
+//       ...messages,
+//     ],
+//   });
+
+//   const stream = createStreamableValue(result.textStream);
+//   return stream.value;
+// }

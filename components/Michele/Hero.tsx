@@ -12,10 +12,10 @@ import { RecordAudio } from './RecordAudio';
 import VideoPlayer from './VideoPlayer';
 import { HeroUI } from './HeroUI';
 import {
-  continueConversation,
   continueConversation2,
   generateDescriptions2,
   generateDescriptions3,
+  generateDescriptions4,
 } from '@/app/actions';
 
 function Hero() {
@@ -75,20 +75,38 @@ function Hero() {
     } else if (result.type === 'toolResult') {
       console.log('Result:', result);
       if (Array.isArray(result.content) && result.content.length > 0) {
-        if (
-          Array.isArray(result.content[0]) &&
-          result.content[0].length > 0 &&
-          typeof result.content[0][0] === 'object' &&
-          'video_url' in result.content[0][0] &&
-          'details' in result.content[0][0]
-        ) {
-          await executeVideoPlayback(result.content[0]);
-        } else {
+        const toolResult = result.content[result.content.length - 1];
+        if (toolResult.tool === 'show_Shoplifting_Instances') {
+          if (Array.isArray(toolResult.result)) {
+            await executeVideoPlayback(toolResult.result);
+          } else {
+            console.error('Invalid result format for video playback');
+          }
+        } else if (toolResult.tool === 'get_Count') {
           const latestUserMessage = newMessages[newMessages.length - 1].content;
-          await executeAudioPlayback(
-            result.content[result.content.length - 1],
-            latestUserMessage
-          );
+          await executeAudioPlayback(toolResult.result, latestUserMessage);
+        } else if (toolResult.tool === 'handle_different_questions') {
+          const latestUserMessage = newMessages[newMessages.length - 1].content;
+          await executeAudioPlayback2(toolResult.result, latestUserMessage);
+
+          // if (Array.isArray(result.content) && result.content.length > 0) {
+          //   if (
+          //     Array.isArray(result.content[0]) &&
+          //     result.content[0].length > 0 &&
+          //     typeof result.content[0][0] === 'object' &&
+          //     'video_url' in result.content[0][0] &&
+          //     'details' in result.content[0][0]
+          //   ) {
+          //     await executeVideoPlayback(result.content[0]);
+          //   } else if (
+          //     Array.isArray(result.content) &&
+          //     result.content.every((item) => typeof item === 'number')
+          //   ) {
+          //     const latestUserMessage = newMessages[newMessages.length - 1].content;
+          //     await executeAudioPlayback(
+          //       result.content[result.content.length - 1],
+          //       latestUserMessage
+          //     );
 
           // console.error(
           //   'Invalid toolResult content structure:',
@@ -206,6 +224,20 @@ function Hero() {
     isCancelledRef.current = false;
 
     const description = await generateDescriptions3(content, latestUserMessage);
+
+    await synthesizeAudio(description as string);
+    await cancellableDelay(7000);
+    if (isCancelledRef.current) return;
+  };
+
+  const executeAudioPlayback2 = async (
+    content: any,
+    latestUserMessage: any
+  ) => {
+    setIsCancelled(false);
+    isCancelledRef.current = false;
+
+    const description = await generateDescriptions4(content, latestUserMessage);
 
     await synthesizeAudio(description as string);
     await cancellableDelay(7000);
