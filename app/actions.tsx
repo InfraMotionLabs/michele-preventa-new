@@ -89,13 +89,25 @@ export async function continueConversation2(history: CoreMessage[]) {
 
   const { text, toolResults } = await generateText({
     model: openai('gpt-4o'),
-    system: `You are Michelle, a digital security guard for a grocery shop. Analyze user queries to determine if database access is needed. If so, use the getShoplioftingDetialsAndShowVideos tool with appropriate parameters. If the user asks for a video or anything related to shoplifting instances, then call the getShoplioftingDetialsAndShowVideos function. IF the user asks show all the instances, the call the function with no filters.
+    system: `You are Michelle, a digital security guard for a grocery shop. 
+    
+    The user will ask for details about any specific shoplifting instance, you will call the get_Shoplifting_Detials_And_VideoUrls function and generate the appropriate parameters from the user query for the function, which will return the details of the shoplifting instance and the video urls. The tool result will be handled on the client side to show the video and the details.
 
-    Always wrap the filters in a "filters" object when calling the get_Shoplifting_Detials_And_VideoUrls tool.`,
+    Example user query: "Show me the video of the shoplifting instance of the female wearing blue pants and black pants"
+    Example user query: "Show me all the shoplifting instances"
+    Example user query: "Were there any shoplifting instances at the bakery section?"
+
+    If they user asks for all the shoplifting instances, call the function with no filters.
+
+    If the user asks for count of specific shoplifting instances, call the get_Count function with the appropriate filters. It will return the count of the shoplifting instances. 
+
+    Example user query: "How many shoplifting instances were there at the bakery section?"
+    Example user query: "How many shop lifters carry a nike bag?"`,
     messages: history,
     tools: {
       get_Shoplifting_Detials_And_VideoUrls: {
-        description: 'Get details on shoplifting incidents and the video urls',
+        description:
+          'Fetch details on shoplifting incidents and the video urls',
         parameters: z.object({
           value: z
             .object({
@@ -195,6 +207,7 @@ export async function continueConversation2(history: CoreMessage[]) {
         },
       },
     },
+    maxToolRoundtrips: 3,
   });
 
   if (text) {
@@ -217,7 +230,11 @@ export async function continueConversation2(history: CoreMessage[]) {
 
 const fetchFromSupabase = async (filters: Record<string, string>) => {
   const supabase = createClient();
-  let query = supabase.from('v2').select('video_url');
+  let query = supabase
+    .from('v2')
+    .select(
+      'gender, age_category, skin_tone, dress_top_color, dress_bottom_color, accessory, store_section, video_url'
+    );
 
   for (const [key, value] of Object.entries(filters)) {
     query = query.eq(key, value);
@@ -235,6 +252,15 @@ const fetchFromSupabase = async (filters: Record<string, string>) => {
   const formattedData =
     data?.map((row) => ({
       video_url: row.video_url,
+      details: {
+        gender: row.gender,
+        age_category: row.age_category,
+        skin_tone: row.skin_tone,
+        dress_top_color: row.dress_top_color,
+        dress_bottom_color: row.dress_bottom_color,
+        accessory: row.accessory,
+        store_section: row.store_section,
+      },
     })) || [];
 
   return formattedData;

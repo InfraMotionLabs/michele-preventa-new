@@ -74,8 +74,8 @@ function Hero() {
     } else if (result.type === 'toolResult') {
       if (Array.isArray(result.content) && result.content.length > 0) {
         const videoData = result.content[0];
-        if (videoData && typeof videoData === 'object') {
-          await executeVideoPlayback(videoData);
+        if (videoData && 'video_url' in videoData) {
+          await executeVideoPlayback(result.content);
         } else {
           console.error('Invalid videoData:', videoData);
         }
